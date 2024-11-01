@@ -1,14 +1,10 @@
 # Message Editor
 
-![Workflow: build](https://github.com/jaqobb/message-editor/workflows/build/badge.svg) ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+Edit in-game messages that were previously unmodifiable. Message Editor allows server owners to edit default server messages or messages from other plugins, in an easy and user-friendly way. This is a perfect solution to edit messages that are hardcoded in plugins or server software and cannot be changed otherwise.
 
-Message Editor is a Spigot plugin that allows editing in-game messages that were previously unmodifiable, in easy and fast way.
-
-Click [here](https://www.spigotmc.org/resources/message-editor.82154/) to get to the project's SpigotMC page.
+Click [here](https://www.spigotmc.org/resources/message-editor.82154/) to get to the plugin's SpigotMC page.
 
 ## Features
-
-Message Editor supports:
 
 * Editing chat messages - since 1.0.0,
 * Editing action bar messages - since 1.0.0,
@@ -28,34 +24,22 @@ Message Editor supports:
 
 ## Showcase
 
-Images show first the original message and then the same message but after being edited using Message Editor.
+Images below present a comparison between default messages and the same messages after being edited using Message Editor.
 
 ![Showcase](images/showcase_before_2.png)
-
 ![Showcase](images/showcase_after_2.png)
-
 ![Showcase](images/showcase_before.png)
-
 ![Showcase](images/showcase_after.png)
 
 ## Usage
 
-Basic message editing:
-
 [![Basic message editing](https://img.youtube.com/vi/93P9hZKKAB8/0.jpg)](https://www.youtube.com/watch?v=93P9hZKKAB8)
-
-Message place editing:
-
 [![Message place editing](https://img.youtube.com/vi/QE5TPSFGy5k/0.jpg)](https://www.youtube.com/watch?v=QE5TPSFGy5k)
-
-Advanced message editing:
-
 [![Advanced message editing](https://img.youtube.com/vi/tUDvZOxwlok/0.jpg)](https://www.youtube.com/watch?v=tUDvZOxwlok)
 
 ## Requirements
 
-Message Editor requires:
-
-* Server version at least 1.8,
-* The latest version of ProtocolLib,
-* PlaceholderAPI (optional) - if you want to use placeholders in edited messages.
+* Server version 1.8+.
+* Java 8+ prior to 2.5.5, and Java 21+ since 2.5.5.
+* ProtocolLib 5.3.0+.
+* PlaceholderAPI 2.11.6+ - only required if you wish to use placeholders in edited messages.
