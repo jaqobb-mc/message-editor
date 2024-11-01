@@ -48,6 +48,9 @@ public class Updater implements Runnable {
         if (this.versionDifference < 0) {
             return "&7You are running an outdated version of &eMessage Editor &7(&e" + this.currentVersion + " &7< &e" + this.latestVersion + "&7). Consider updating to receive new features, bug fixes and more.";
         }
+        if (this.versionDifference > 0) {
+            return "&7You are running a future version of &eMessage Editor &7(&e" + this.currentVersion + " &7> &e" + this.latestVersion + "&7). I suppose you are a time traveler.";
+        }
         return "&7You are running the latest version of &eMessage Editor&7.";
     }
     
