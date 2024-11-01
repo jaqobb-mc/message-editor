@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2020-2023 Jakub Zagórski (jaqobb)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package dev.jaqobb.message_editor.command;
 
 import dev.jaqobb.message_editor.MessageEditorPlugin;
@@ -37,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,17 +21,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-public final class MessageEditorCommand implements CommandExecutor {
-
+public class MessageEditorCommand implements CommandExecutor {
+    
     private final MessageEditorPlugin plugin;
-
+    
     public MessageEditorCommand(MessageEditorPlugin plugin) {
         this.plugin = plugin;
     }
-
+    
     @SuppressWarnings("unchecked")
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] arguments) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, String[] arguments) {
         if (!sender.hasPermission("messageeditor.use")) {
             MessageUtils.sendPrefixedMessage(sender, "&cYou do not have the required permissions to do that.");
             return true;
@@ -204,7 +181,7 @@ public final class MessageEditorCommand implements CommandExecutor {
         this.sendHelpMessage(sender, label);
         return true;
     }
-
+    
     private void sendHelpMessage(CommandSender target, String label) {
         MessageUtils.sendPrefixedMessage(target, "&7Correct usage: &e/message-editor &e<label> &6[<arguments>]&7.");
         MessageUtils.sendMessage(target, " &8- &ereload &7- Reloads plugin.");
@@ -215,7 +192,7 @@ public final class MessageEditorCommand implements CommandExecutor {
         MessageUtils.sendMessage(target, " &8- &emigrate &7- Migrates old message edits to the new per-file system.");
         this.sendAvailableMessagePlaces(target);
     }
-
+    
     private void sendAvailableMessagePlaces(CommandSender target) {
         MessageUtils.sendPrefixedMessage(target, "&7Available message places:");
         for (MessagePlace place : MessagePlace.VALUES) {

@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2020-2023 Jakub Zagórski (jaqobb)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package dev.jaqobb.message_editor.util;
 
 import com.comphenix.protocol.PacketType;
@@ -53,62 +29,74 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class MessageUtils {
-
+    
     public static final String MESSAGE_PREFIX = "&8[&6Message Editor&8] ";
     public static final int MESSAGE_LENGTH = 40;
-
+    
     public static final Pattern CHAT_COLOR_PATTERN = Pattern.compile("(?i)" + ChatColor.COLOR_CHAR + "([0-9A-FK-ORX])");
-
+    
     public static final String SPECIAL_REGEX_CHARACTERS = "[/<>{}()\\[\\],.+\\-*?^$\\\\|]";
-
+    
     private static final Random ID_NUMBER_GENERATOR = new SecureRandom();
     private static final char[] ID_CHARACTERS = "_-0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
     private static final int ID_LENGTH = 8;
-    @SuppressWarnings("UnnecessaryExplicitNumericCast")
-    // Explicit cast is actually necessary.
     private static final int ID_MASK = (2 << (int) Math.floor(StrictMath.log(ID_CHARACTERS.length - 1) / StrictMath.log(2))) - 1;
     private static final int ID_STEP = (int) Math.ceil(1.6D * ID_MASK * ID_LENGTH / ID_CHARACTERS.length);
-
+    
     public static final boolean HEX_COLORS_SUPPORTED;
     public static final boolean ADVENTURE_PRESENT;
-
+    
     static {
-        HEX_COLORS_SUPPORTED = methodExists(ChatColor.class, "of", String.class);
-        ADVENTURE_PRESENT = classExists("net.kyori.adventure.Adventure");
+        boolean hexColorsSupported;
+        try {
+            ChatColor.class.getDeclaredMethod("of", String.class);
+            hexColorsSupported = true;
+        } catch (NoSuchMethodException exception) {
+            hexColorsSupported = false;
+        }
+        HEX_COLORS_SUPPORTED = hexColorsSupported;
+        boolean adventurePresent;
+        try {
+            Class.forName("net.kyori.adventure.text.Component");
+            adventurePresent = true;
+        } catch (ClassNotFoundException exception) {
+            adventurePresent = false;
+        }
+        ADVENTURE_PRESENT = adventurePresent;
     }
-
+    
     private MessageUtils() {
         throw new UnsupportedOperationException("Cannot create instance of this class");
     }
-
+    
     public static String translate(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
-
+    
     public static String translateWithPrefix(String message) {
         return translate(MESSAGE_PREFIX + message);
     }
-
+    
     public static void sendSuccessSound(Player recipient) {
         recipient.playSound(recipient.getLocation(), XSound.ENTITY_EXPERIENCE_ORB_PICKUP.parseSound(), 1.0F, 1.0F);
     }
-
+    
     public static void sendErrorSound(Player recipient) {
         recipient.playSound(recipient.getLocation(), XSound.ENTITY_ITEM_BREAK.parseSound(), 1.0F, 1.0F);
     }
-
+    
     public static void sendIllegalOptionSound(Player recipient) {
         recipient.playSound(recipient.getLocation(), XSound.BLOCK_ANVIL_HIT.parseSound(), 1.0F, 1.0F);
     }
-
+    
     public static void sendMessage(CommandSender recipient, String message) {
         recipient.sendMessage(translate(message));
     }
-
+    
     public static void sendPrefixedMessage(CommandSender recipient, String message) {
         recipient.sendMessage(translateWithPrefix(message));
     }
-
+    
     public static List<String> splitMessage(String message, boolean json) {
         List<String> result = new ArrayList<>();
         for (String messageData : message.split(json ? "\\n" : "\\\\n")) {
@@ -131,7 +119,7 @@ public final class MessageUtils {
         }
         return result;
     }
-
+    
     // https://github.com/aventrix/jnanoid/blob/develop/src/main/java/com/aventrix/jnanoid/jnanoid/NanoIdUtils.java
     public static String generateId(MessagePlace place) {
         StringBuilder idBuilder = new StringBuilder(place.getId());
@@ -149,10 +137,10 @@ public final class MessageUtils {
             }
         }
     }
-
+    
     public static String getLastColors(String message) {
         int length = message.length();
-        String colors = "";
+        StringBuilder colors = new StringBuilder();
         for (int index = length - 1; index > -1; index -= 1) {
             char section = message.charAt(index);
             if (section == ChatColor.COLOR_CHAR && index < length - 1) {
@@ -162,13 +150,13 @@ public final class MessageUtils {
                     if (hexColorSection == ChatColor.COLOR_CHAR) {
                         char hexColorCharacter = message.charAt(index - 11);
                         if ((hexColorCharacter == 'x' || hexColorCharacter == 'X') && HEX_COLORS_SUPPORTED) {
-                            String hexColor = "";
+                            StringBuilder hexColor = new StringBuilder();
                             for (int j = -9; j <= 1; j += 2) {
-                                hexColor += message.charAt(index + j);
+                                hexColor.append(message.charAt(index + j));
                             }
                             try {
                                 index -= 13;
-                                colors = ChatColor.of("#" + hexColor) + colors;
+                                colors.insert(0, ChatColor.of("#" + hexColor));
                                 continue;
                             } catch (IllegalArgumentException ignored) {
                             }
@@ -178,16 +166,16 @@ public final class MessageUtils {
                 ChatColor color = ChatColor.getByChar(character);
                 if (color != null) {
                     index -= 1;
-                    colors = color + colors;
+                    colors.insert(0, color);
                     if (color == ChatColor.RESET || (color != ChatColor.MAGIC && color != ChatColor.BOLD && color != ChatColor.STRIKETHROUGH && color != ChatColor.UNDERLINE && color != ChatColor.ITALIC)) {
                         break;
                     }
                 }
             }
         }
-        return colors;
+        return colors.toString();
     }
-
+    
     public static BaseComponent[] toBaseComponents(String message) {
         TextComponent finalComponent = new TextComponent();
         TextComponent component = new TextComponent();
@@ -204,9 +192,9 @@ public final class MessageUtils {
             } else {
                 char hexColorCharacter = message.charAt(index + 1);
                 if ((hexColorCharacter == 'x' || hexColorCharacter == 'X') && HEX_COLORS_SUPPORTED) {
-                    String hexColor = "";
+                    StringBuilder hexColor = new StringBuilder();
                     for (int j = 3; j <= 13; j += 2) {
-                        hexColor += message.charAt(index + j);
+                        hexColor.append(message.charAt(index + j));
                     }
                     try {
                         index += 13;
@@ -256,36 +244,33 @@ public final class MessageUtils {
         }
         return new BaseComponent[] {finalComponent};
     }
-
-    // Using ComponentSerializer#toString when the amount of components is greater than 1
-    // wraps the message into TextComponent and thus can break plugins where the index
-    // of a message component is important.
+    
+    // Using ComponentSerializer#toString when the amount of components is greater than 1 wraps the message into TextComponent
+    // and can thus break plugins where the index of a message component is important.
     public static String toJson(BaseComponent[] components, boolean wrapIntoTextComponent) {
         if (components.length == 1) {
             return ComponentSerializer.toString(components[0]);
-        } else if (wrapIntoTextComponent) {
-            return ComponentSerializer.toString(components);
-        } else {
-            StringJoiner json = new StringJoiner(",", "[", "]");
-            for (BaseComponent component : components) {
-                json.add(ComponentSerializer.toString(component));
-            }
-            return json.toString();
         }
+        if (!wrapIntoTextComponent) {
+            return ComponentSerializer.toString(components);
+        }
+        StringJoiner json = new StringJoiner(",", "[", "]");
+        for (BaseComponent component : components) {
+            json.add(ComponentSerializer.toString(component));
+        }
+        return json.toString();
     }
-
+    
     public static boolean isJson(String message) {
         try {
-            // Streams is being used instead of JsonParser
-            // because JsonParser parses the string in lenient mode
-            // which we don't want.
+            // Streams is being used instead of JsonParser as JsonParser parses the string in lenient mode which we do not want.
             Streams.parse(new JsonReader(new StringReader(message)));
             return true;
         } catch (JsonParseException exception) {
             return false;
         }
     }
-
+    
     public static void logMessage(Logger logger, MessagePlace place, Player player, String messageId, boolean json, String message) {
         logger.log(Level.INFO, "Place: " + place.getFriendlyName() + " (" + place.name() + ")");
         logger.log(Level.INFO, "Player: " + player.getName());
@@ -302,35 +287,35 @@ public final class MessageUtils {
         }
         logger.log(Level.INFO, "Message ID: '" + messageId + "'");
     }
-
+    
     public static String retrieveMessage(PacketContainer packet, PacketType simulatedPacketType) {
+        if (simulatedPacketType != PacketType.Play.Server.CHAT && simulatedPacketType != PacketType.Play.Server.SYSTEM_CHAT) {
+            return null;
+        }
         if (simulatedPacketType == PacketType.Play.Server.CHAT) {
             WrappedChatComponent message = packet.getChatComponents().readSafely(0);
             if (message != null) {
                 return message.getJson();
-            } else if (packet.getSpecificModifier(BaseComponent[].class).size() == 1) {
-                BaseComponent[] messageComponents = packet.getSpecificModifier(BaseComponent[].class).readSafely(0);
-                if (messageComponents != null) {
-                    return toJson(messageComponents, false);
-                }
             }
-        } else if (simulatedPacketType == PacketType.Play.Server.SYSTEM_CHAT) {
-            if (ADVENTURE_PRESENT) {
-                // Additional check for safety in case adventure is detected but packets do not use it.
-                // If it is not used, fall back to the general method.
-                Component component = packet.getSpecificModifier(Component.class).readSafely(0);
-                if (component != null) {
-                    return GsonComponentSerializer.gson().serialize(component);
-                }
+            BaseComponent[] messageComponents = packet.getSpecificModifier(BaseComponent[].class).readSafely(0);
+            if (messageComponents != null) {
+                return toJson(messageComponents, false);
             }
-            if (MinecraftVersion.v1_20_4.atOrAbove()) {
-                return packet.getChatComponents().readSafely(0).getJson();
-            }
-            return packet.getStrings().readSafely(0);
+            return null;
         }
-        return null;
+        if (ADVENTURE_PRESENT) {
+            // Adventure may be present, but it is not guaranteed that packets use it.
+            Component component = packet.getSpecificModifier(Component.class).readSafely(0);
+            if (component != null) {
+                return GsonComponentSerializer.gson().serialize(component);
+            }
+        }
+        if (MinecraftVersion.v1_20_4.atOrAbove()) {
+            return packet.getChatComponents().readSafely(0).getJson();
+        }
+        return packet.getStrings().readSafely(0);
     }
-
+    
     public static void updateMessage(PacketContainer packet, PacketType simulatedPacketType, String message, boolean json) {
         if (simulatedPacketType == PacketType.Play.Server.CHAT) {
             if (packet.getChatComponents().readSafely(0) != null) {
@@ -347,13 +332,10 @@ public final class MessageUtils {
                 }
             }
         } else if (simulatedPacketType == PacketType.Play.Server.SYSTEM_CHAT) {
-            if (ADVENTURE_PRESENT) {
-                // Additional check for safety in case adventure is detected but packets do not use it.
-                // If it is not used, fall back to the general method.
-                if (packet.getSpecificModifier(Component.class).readSafely(0) != null) {
-                    packet.getSpecificModifier(Component.class).write(0, GsonComponentSerializer.gson().deserialize(message));
-                    return;
-                }
+            // Adventure may be present, but it is not guaranteed that packets use it.
+            if (ADVENTURE_PRESENT && packet.getSpecificModifier(Component.class).readSafely(0) != null) {
+                packet.getSpecificModifier(Component.class).write(0, GsonComponentSerializer.gson().deserialize(message));
+                return;
             }
             if (json) {
                 if (MinecraftVersion.v1_20_4.atOrAbove()) {
@@ -368,24 +350,6 @@ public final class MessageUtils {
                     packet.getStrings().write(0, toJson(toBaseComponents(message), true));
                 }
             }
-        }
-    }
-
-    private static boolean classExists(String name) {
-        try {
-            Class.forName(name);
-            return true;
-        } catch (ClassNotFoundException exception) {
-            return false;
-        }
-    }
-
-    private static boolean methodExists(Class<?> clazz, String name, Class<?>... parameterTypes) {
-        try {
-            clazz.getDeclaredMethod(name, parameterTypes);
-            return true;
-        } catch (NoSuchMethodException exception) {
-            return false;
         }
     }
 }

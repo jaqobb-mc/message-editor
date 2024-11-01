@@ -1,31 +1,8 @@
-/*
- * MIT License
- *
- * Copyright (c) 2020-2023 Jakub Zagórski (jaqobb)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package dev.jaqobb.message_editor;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -54,7 +31,6 @@ import dev.jaqobb.message_editor.message.MessageEdit;
 import dev.jaqobb.message_editor.message.MessageEditData;
 import dev.jaqobb.message_editor.message.MessagePlace;
 import dev.jaqobb.message_editor.updater.Updater;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -79,13 +55,12 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 // TODO: Fix disconnect message place (it just does not seem to be working at all?)?
-public final class MessageEditorPlugin extends JavaPlugin {
-
+public class MessageEditorPlugin extends JavaPlugin {
+    
     static {
         ConfigurationSerialization.registerClass(MessageEdit.class);
     }
-
-    private Metrics metrics;
+    
     private boolean updateNotify;
     private Updater updater;
     private List<MessageEdit> messageEdits;
@@ -95,7 +70,7 @@ public final class MessageEditorPlugin extends JavaPlugin {
     private Cache<String, Map.Entry<MessageEdit, String>> cachedMessages;
     private Cache<String, MessageData> cachedMessagesData;
     private Map<UUID, MessageEditData> currentMessageEditsData;
-
+    
     @Override
     public void onLoad() {
         MinecraftVersion requiredVersion = null;
@@ -112,8 +87,6 @@ public final class MessageEditorPlugin extends JavaPlugin {
             this.setEnabled(false);
             return;
         }
-        this.getLogger().log(Level.INFO, "Starting metrics...");
-        this.metrics = new Metrics(this, 8376);
         this.getLogger().log(Level.INFO, "Loading configuration...");
         this.saveDefaultConfig();
         this.reloadConfig();
@@ -128,7 +101,7 @@ public final class MessageEditorPlugin extends JavaPlugin {
             .build();
         this.currentMessageEditsData = new HashMap<>();
     }
-
+    
     @Override
     public void onEnable() {
         this.getLogger().log(Level.INFO, "Starting updater...");
@@ -150,36 +123,24 @@ public final class MessageEditorPlugin extends JavaPlugin {
         pluginManager.registerEvents(new PlayerInventoryClickListener(this), this);
         pluginManager.registerEvents(new PlayerChatListener(this), this);
         this.getLogger().log(Level.INFO, "Registering packet listeners...");
+        Map<String, PacketAdapter> packetListeners = new HashMap<>();
+        packetListeners.put("chat", new ChatPacketListener(this));
+        packetListeners.put("kick", new KickPacketListener(this));
+        packetListeners.put("disconnect", new DisconnectPacketListener(this));
+        packetListeners.put("bossbar", new BossBarPacketListener(this));
+        packetListeners.put("scoreboard-title", new ScoreboardTitlePacketListener(this));
+        packetListeners.put("scoreboard-entry", new ScoreboardEntryPacketListener(this));
+        packetListeners.put("inventory-title", new InventoryTitlePacketListener(this));
+        packetListeners.put("inventory-item", new InventoryItemsPacketListener(this));
+        packetListeners.put("entity-name", new EntityNamePacketListener(this));
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        if (this.getConfig().getBoolean("packet-listeners.chat", true)) {
-            protocolManager.addPacketListener(new ChatPacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.kick", true)) {
-            protocolManager.addPacketListener(new KickPacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.disconnect", true)) {
-            protocolManager.addPacketListener(new DisconnectPacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.bossbar", true)) {
-            protocolManager.addPacketListener(new BossBarPacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.scoreboard-title", true)) {
-            protocolManager.addPacketListener(new ScoreboardTitlePacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.scoreboard-entry", true)) {
-            protocolManager.addPacketListener(new ScoreboardEntryPacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.inventory-title", true)) {
-            protocolManager.addPacketListener(new InventoryTitlePacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.inventory-item", true)) {
-            protocolManager.addPacketListener(new InventoryItemsPacketListener(this));
-        }
-        if (this.getConfig().getBoolean("packet-listeners.entity-name", true)) {
-            protocolManager.addPacketListener(new EntityNamePacketListener(this));
+        for (Map.Entry<String, PacketAdapter> packetListener : packetListeners.entrySet()) {
+            if (this.getConfig().getBoolean("packet-listeners." + packetListener.getKey(), true)) {
+                protocolManager.addPacketListener(packetListener.getValue());
+            }
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     @Override
     public void reloadConfig() {
@@ -209,12 +170,13 @@ public final class MessageEditorPlugin extends JavaPlugin {
                         continue;
                     }
                     String clearName = name.substring("edits".length() + 1);
-                    if (clearName.isEmpty()) {
+                    if (!clearName.endsWith(".yml")) {
                         continue;
                     }
-                    if (clearName.endsWith(".yml") && !clearName.substring(0, clearName.length() - 4).isEmpty()) {
-                        resources.add("edits/" + clearName);
+                    if (clearName.substring(0, clearName.length() - 4).isEmpty()) {
+                        continue;
                     }
+                    resources.add("edits/" + clearName);
                 }
             } catch (IOException exception) {
                 this.getLogger().log(Level.WARNING, "Could not copy default edits.", exception);
@@ -235,99 +197,95 @@ public final class MessageEditorPlugin extends JavaPlugin {
             this.messageEdits.add(MessageEdit.deserialize(configuration.getRoot().getValues(false)));
         }
     }
-
-    public Metrics getMetrics() {
-        return this.metrics;
-    }
-
+    
     public boolean isUpdateNotify() {
         return this.updateNotify;
     }
-
+    
     public Updater getUpdater() {
         return this.updater;
     }
-
+    
     public List<MessageEdit> getMessageEdits() {
         return Collections.unmodifiableList(this.messageEdits);
     }
-
+    
     public void addMessageEdit(MessageEdit messageEdit) {
         this.messageEdits.add(messageEdit);
     }
-
+    
     public boolean isAttachSpecialHoverAndClickEvents() {
         return this.attachSpecialHoverAndClickEvents;
     }
-
+    
     public boolean isPlaceholderApiPresent() {
         return this.placeholderApiPresent;
     }
-
+    
     public void setPlaceholderApiPresent(boolean present) {
         this.placeholderApiPresent = present;
     }
-
+    
     public MenuManager getMenuManager() {
         return this.menuManager;
     }
-
+    
     public Set<String> getCachedMessages() {
         return Collections.unmodifiableSet(this.cachedMessages.asMap().keySet());
     }
-
+    
     public Map.Entry<MessageEdit, String> getCachedMessage(String messageBefore) {
         return this.cachedMessages.getIfPresent(messageBefore);
     }
-
+    
     public void cacheMessage(String messageBefore, MessageEdit edit, String messageAfter) {
         this.cachedMessages.put(messageBefore, new AbstractMap.SimpleEntry<>(edit, messageAfter));
     }
-
+    
     public void uncacheMessage(String messageBefore) {
         this.cachedMessages.invalidate(messageBefore);
     }
-
+    
     public void clearCachedMessages() {
         this.cachedMessages.invalidateAll();
     }
-
+    
     public Set<String> getCachedMessagesData() {
         return Collections.unmodifiableSet(this.cachedMessagesData.asMap().keySet());
     }
-
+    
     public MessageData getCachedMessageData(String id) {
         return this.cachedMessagesData.getIfPresent(id);
     }
-
+    
     public void cacheMessageData(String id, MessageData data) {
         this.cachedMessagesData.put(id, data);
     }
-
+    
     public void uncacheMessageData(String id) {
         this.cachedMessagesData.invalidate(id);
     }
-
+    
     public void clearCachedMessagesData() {
         this.cachedMessagesData.invalidateAll();
     }
-
+    
     public Map<UUID, MessageEditData> getCurrentMessageEditsData() {
         return Collections.unmodifiableMap(this.currentMessageEditsData);
     }
-
+    
     public MessageEditData getCurrentMessageEditData(UUID uuid) {
         return this.currentMessageEditsData.get(uuid);
     }
-
+    
     public void setCurrentMessageEdit(UUID uuid, MessageEditData editData) {
         this.currentMessageEditsData.put(uuid, editData);
     }
-
+    
     public void removeCurrentMessageEditData(UUID uuid) {
         this.currentMessageEditsData.remove(uuid);
     }
-
+    
     public void clearCurrentMessageEditsData() {
         this.currentMessageEditsData.clear();
     }

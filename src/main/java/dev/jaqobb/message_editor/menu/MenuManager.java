@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2020-2023 Jakub Zagórski (jaqobb)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package dev.jaqobb.message_editor.menu;
 
 import com.comphenix.protocol.reflect.accessors.Accessors;
@@ -49,33 +25,22 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public final class MenuManager {
-
+public class MenuManager {
+    
     private static final WrappedGameProfile ARROW_PROFILE;
-
+    
     private static final int[] BORDER_ITEM_1_SLOTS = {0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 37, 38, 40, 42, 43, 44, 45, 46, 47, 49, 51, 52, 53};
     private static final ItemStack BORDER_ITEM_1 = constructItem(XMaterial.BLACK_STAINED_GLASS_PANE, " ");
-
+    
     private static final int[] BORDER_ITEM_2_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 21, 23, 25, 28, 29, 30, 31, 32, 34, 37, 38, 39, 40, 41, 42, 43};
     private static final ItemStack BORDER_ITEM_2 = constructItem(XMaterial.GRAY_STAINED_GLASS_PANE, " ");
-
+    
     private static final ItemStack MESSAGE_ARROW_ITEM;
     private static final ItemStack MESSAGE_PLACE_ARROW_ITEM;
-
-    private static final ItemStack DONE_ITEM = constructItem(
-        XMaterial.GREEN_TERRACOTTA,
-        "&aDone",
-        "",
-        "&7Click to save message edit",
-        "&7and apply it to your server."
-    );
-    private static final ItemStack CANCEL_ITEM = constructItem(
-        XMaterial.RED_TERRACOTTA,
-        "&cCancel",
-        "",
-        "&7Click to cancel message edit."
-    );
-
+    
+    private static final ItemStack DONE_ITEM = constructItem(XMaterial.GREEN_TERRACOTTA, "&aDone", "", "&7Click to save message edit", "&7and apply it to your server.");
+    private static final ItemStack CANCEL_ITEM = constructItem(XMaterial.RED_TERRACOTTA, "&cCancel", "", "&7Click to cancel message edit.");
+    
     static {
         String textures = "ewogICJ0aW1lc3RhbXAiIDogMTYwNzM2ODc1MzI0NCwKICAicHJvZmlsZUlkIiA6ICI1MGM4NTEwYjVlYTA0ZDYwYmU5YTdkNTQyZDZjZDE1NiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNSEZfQXJyb3dSaWdodCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMzRlZjA2Mzg1MzcyMjJiMjBmNDgwNjk0ZGFkYzBmODVmYmUwNzU5ZDU4MWFhN2ZjZGYyZTQzMTM5Mzc3MTU4IgogICAgfQogIH0KfQ==";
         ARROW_PROFILE = new WrappedGameProfile(UUID.nameUUIDFromBytes(textures.getBytes(StandardCharsets.UTF_8)), "MHF_ArrowRight");
@@ -83,19 +48,19 @@ public final class MenuManager {
         MESSAGE_ARROW_ITEM = constructArrowItem("&e< &7Old message", "&e> &7New message");
         MESSAGE_PLACE_ARROW_ITEM = constructArrowItem("&e< &7Old message place", "&e> &7New message place");
     }
-
+    
     private final MessageEditorPlugin plugin;
-
+    
     public MenuManager(MessageEditorPlugin plugin) {
         this.plugin = plugin;
     }
-
+    
     public void openMenu(Player player, MessageData data, boolean playSound) {
         MessageEditData editData = new MessageEditData(data);
         this.openMenu(player, editData, playSound);
         this.plugin.setCurrentMessageEdit(player.getUniqueId(), editData);
     }
-
+    
     public void openMenu(Player player, MessageEditData editData, boolean playSound) {
         Inventory inventory = Bukkit.createInventory(null, 54, MessageUtils.translate("&8Message Editor"));
         for (int slot : BORDER_ITEM_1_SLOTS) {
@@ -196,7 +161,7 @@ public final class MenuManager {
             MessageUtils.sendSuccessSound(player);
         }
     }
-
+    
     private static ItemStack constructArrowItem(String name, String... lore) {
         ItemStack item = constructItem(XMaterial.PLAYER_HEAD, name, lore);
         ItemMeta itemMeta = item.getItemMeta();
@@ -205,7 +170,7 @@ public final class MenuManager {
         item.setItemMeta(itemMeta);
         return item;
     }
-
+    
     private static ItemStack constructItem(XMaterial material, String name, String... lore) {
         ItemStack item = material.parseItem();
         ItemMeta itemMeta = item.getItemMeta();

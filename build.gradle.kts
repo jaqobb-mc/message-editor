@@ -49,44 +49,21 @@ tasks {
         exclude("com/cryptomorin/xseries/XPotion*")
         exclude("com/cryptomorin/xseries/XTag*")
         relocate("com.cryptomorin.xseries", "dev.jaqobb.message_editor.library.xseries")
-        relocate("org.bstats", "dev.jaqobb.message_editor.metrics")
     }
 }
 
 repositories {
     mavenCentral()
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") {
-        content {
-            includeGroup("org.spigotmc")
-        }
-    }
-    maven("https://oss.sonatype.org/content/repositories/snapshots/") {
-        content {
-            includeGroup("net.md-5")
-        }
-    }
-    maven("https://repo.dmulloy2.net/nexus/repository/public/") {
-        content {
-            includeGroup("com.comphenix.protocol")
-        }
-    }
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
-        content {
-            includeGroup("me.clip")
-        }
-    }
-    maven("https://repo.codemc.org/repository/maven-public/") {
-        content {
-            includeGroup("org.bstats")
-        }
-    }
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    maven("https://repo.dmulloy2.net/nexus/repository/public/")
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
-    compileOnly("net.kyori:adventure-platform-bukkit:4.3.0")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.2.0-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.11.3")
-    implementation("com.github.cryptomorin:XSeries:9.4.0")
-    implementation("org.bstats:bstats-bukkit:3.0.2")
+    compileOnly("org.spigotmc:spigot-api:1.21.3-R0.1-SNAPSHOT")
+    compileOnly("net.kyori:adventure-platform-bukkit:4.3.4")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
+    compileOnly("me.clip:placeholderapi:2.11.6")
+    implementation("com.github.cryptomorin:XSeries:11.3.0")
 }

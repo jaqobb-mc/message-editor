@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2020-2023 Jakub Zagórski (jaqobb)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package dev.jaqobb.message_editor.listener.packet;
 
 import com.comphenix.protocol.PacketType;
@@ -45,17 +21,17 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-public final class ChatPacketListener extends PacketAdapter {
-
+public class ChatPacketListener extends PacketAdapter {
+    
     public ChatPacketListener(MessageEditorPlugin plugin) {
         super(plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.CHAT, PacketType.Play.Server.SYSTEM_CHAT);
     }
-
+    
     @Override
     public MessageEditorPlugin getPlugin() {
         return (MessageEditorPlugin) super.getPlugin();
     }
-
+    
     @SuppressWarnings("deprecation")
     @Override
     public void onPacketSending(PacketEvent event) {
@@ -87,11 +63,12 @@ public final class ChatPacketListener extends PacketAdapter {
                     continue;
                 }
                 Matcher matcher = edit.getMatcher(message);
-                if (matcher != null) {
-                    messageEdit = edit;
-                    messageEditMatcher = matcher;
-                    break;
+                if (matcher == null) {
+                    continue;
                 }
+                messageEdit = edit;
+                messageEditMatcher = matcher;
+                break;
             }
         }
         if (cachedMessage != null || (messageEdit != null && messageEditMatcher != null)) {
@@ -144,9 +121,7 @@ public final class ChatPacketListener extends PacketAdapter {
                 messageComponents = MessageUtils.toBaseComponents(message);
             }
             for (BaseComponent messageToSendElement : messageComponents) {
-                messageToSendElement.setHoverEvent(
-                    new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(MessageUtils.translate("&7Click to start editing this message.")))
-                );
+                messageToSendElement.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(MessageUtils.translate("&7Click to start editing this message."))));
                 messageToSendElement.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/message-editor edit " + id));
             }
             message = MessageUtils.toJson(messageComponents, false);
