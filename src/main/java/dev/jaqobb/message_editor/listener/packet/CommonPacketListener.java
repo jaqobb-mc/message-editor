@@ -47,7 +47,7 @@ public class CommonPacketListener extends PacketAdapter {
         if (message == null) {
             return;
         }
-        Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message);
+        Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message, this.messagePlace);
         MessageEdit messageEdit = null;
         Matcher messageEditMatcher = null;
         if (cachedMessage == null) {
@@ -74,7 +74,7 @@ public class CommonPacketListener extends PacketAdapter {
                 if (this.getPlugin().isPlaceholderApiPresent()) {
                     newMessage = PlaceholderAPI.setPlaceholders(player, newMessage);
                 }
-                this.getPlugin().cacheMessage(message, messageEdit, newMessage);
+                this.getPlugin().cacheMessage(message, this.messagePlace, messageEdit, newMessage);
                 message = newMessage;
             }
         }

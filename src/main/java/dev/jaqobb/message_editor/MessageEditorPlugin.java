@@ -29,6 +29,7 @@ import dev.jaqobb.message_editor.menu.MenuManager;
 import dev.jaqobb.message_editor.message.MessageData;
 import dev.jaqobb.message_editor.message.MessageEdit;
 import dev.jaqobb.message_editor.message.MessageEditData;
+import dev.jaqobb.message_editor.message.MessageEditInfo;
 import dev.jaqobb.message_editor.message.MessagePlace;
 import dev.jaqobb.message_editor.updater.Updater;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +69,7 @@ public class MessageEditorPlugin extends JavaPlugin {
     private boolean attachSpecialHoverAndClickEvents;
     private boolean placeholderApiPresent;
     private MenuManager menuManager;
-    private Cache<String, Map.Entry<MessageEdit, String>> cachedMessages;
+    private Cache<MessageEditInfo, Map.Entry<MessageEdit, String>> cachedMessages;
     private Cache<String, MessageData> cachedMessagesData;
     private Map<UUID, MessageEditData> currentMessageEditsData;
     
@@ -157,7 +159,7 @@ public class MessageEditorPlugin extends JavaPlugin {
             List<String> resources = new ArrayList<>();
             URL resourceDirectory = this.getClassLoader().getResource("edits");
             String jarPath = resourceDirectory.getPath().substring(5, resourceDirectory.getPath().indexOf('!'));
-            try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
+            try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8))) {
                 Enumeration<JarEntry> entries = jar.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry entry = entries.nextElement();
@@ -230,20 +232,20 @@ public class MessageEditorPlugin extends JavaPlugin {
         return this.menuManager;
     }
     
-    public Set<String> getCachedMessages() {
+    public Set<MessageEditInfo> getCachedMessages() {
         return Collections.unmodifiableSet(this.cachedMessages.asMap().keySet());
     }
     
-    public Map.Entry<MessageEdit, String> getCachedMessage(String messageBefore) {
-        return this.cachedMessages.getIfPresent(messageBefore);
+    public Map.Entry<MessageEdit, String> getCachedMessage(String messageBefore, MessagePlace messagePlace) {
+        return this.cachedMessages.getIfPresent(new MessageEditInfo(messageBefore, messagePlace));
     }
     
-    public void cacheMessage(String messageBefore, MessageEdit edit, String messageAfter) {
-        this.cachedMessages.put(messageBefore, new AbstractMap.SimpleEntry<>(edit, messageAfter));
+    public void cacheMessage(String messageBefore, MessagePlace messagePlace, MessageEdit edit, String messageAfter) {
+        this.cachedMessages.put(new MessageEditInfo(messageBefore, messagePlace), new AbstractMap.SimpleEntry<>(edit, messageAfter));
     }
     
-    public void uncacheMessage(String messageBefore) {
-        this.cachedMessages.invalidate(messageBefore);
+    public void uncacheMessage(String messageBefore, MessagePlace messagePlace) {
+        this.cachedMessages.invalidate(new MessageEditInfo(messageBefore, messagePlace));
     }
     
     public void clearCachedMessages() {

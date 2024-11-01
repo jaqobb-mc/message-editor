@@ -35,7 +35,7 @@ case "${1}" in
   set -e
   plugin_name=$(grep <"${base_folder}/settings.gradle.kts" "rootProject.name =" | cut -d ' ' -f 3 | tr -d \" | head -1)
   plugin_version=$(grep <"${base_folder}/build.gradle.kts" "version =" | cut -d ' ' -f 3 | tr -d \" | head -1)
-  plugin_has_shadow=$(grep <"${base_folder}/build.gradle.kts" "id(\"com.github.johnrengelman.shadow\")" | head -1)
+  plugin_has_shadow=$(grep <"${base_folder}/build.gradle.kts" "id(\"com.gradleup.shadow\")" | head -1)
   if [ -z "${plugin_has_shadow}" ]; then
     plugin_file="${plugin_name}-${plugin_version}.jar"
     ./gradlew clean build
@@ -43,9 +43,9 @@ case "${1}" in
     plugin_file="${plugin_name}-${plugin_version}-all.jar"
     ./gradlew clean build shadowJar
   fi
-  echo "Copying plugin jar, ${plugin_file}, to test server files..."
+  echo "Copying plugin JAR '${plugin_file}' to test server files..."
   cp "${base_folder}/build/libs/${plugin_file}" "${base_folder}/server/plugins/${plugin_file}"
-  echo "Plugin jar, ${plugin_file}, has been copied to test server files."
+  echo "Plugin JAR '${plugin_file}' has been copied to test server files."
   ;;
 "start")
   set -e
@@ -57,14 +57,14 @@ case "${1}" in
   set -e
   echo "Deleting test server files..."
   rm -rf "server"
-  echo "Test server files deleted."
+  echo "Test server files have been deleted."
   ;;
 "prepare")
   set -e
   echo "Preparing test server's empty core directories..."
   mkdir -p "server/buildtools"
   mkdir -p "server/plugins"
-  echo "Test server's empty core directiories prepared."
+  echo "Test server's empty core directories have been prepared."
   ;;
 *)
   echo "${base_folder}"

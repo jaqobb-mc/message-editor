@@ -4,6 +4,7 @@ import dev.jaqobb.message_editor.MessageEditorPlugin;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
@@ -39,7 +40,7 @@ public class Updater implements Runnable {
     
     public String getUpdateMessage() {
         if (this.currentVersion.contains("-SNAPSHOT")) {
-            return "&cYou are running a development version of &7Message Editor &c(&7" + this.currentVersion + "&c). Development versions may be unstable so avoid running them on production servers.";
+            return "&cYou are running a development version of &7Message Editor &c(&7" + this.currentVersion + "&c). Development versions may be unstable. As such, please avoid running them on production servers.";
         }
         if (this.versionDifference == null || this.latestVersion == null) {
             return "&cCould not retrieve the latest version of &7Message Editor&c.";
@@ -56,7 +57,7 @@ public class Updater implements Runnable {
             return;
         }
         try {
-            HttpsURLConnection connection = (HttpsURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.pluginId).openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) URL.of(URI.create("https://api.spigotmc.org/legacy/update.php?resource=" + this.pluginId), null).openConnection();
             connection.setRequestMethod("GET");
             try (InputStream input = connection.getInputStream(); BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
                 this.latestVersion = reader.readLine();

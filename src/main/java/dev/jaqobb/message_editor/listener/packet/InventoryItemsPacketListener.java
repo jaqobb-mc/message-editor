@@ -56,7 +56,7 @@ public class InventoryItemsPacketListener extends PacketAdapter {
             if (itemMeta.hasDisplayName()) {
                 String originalMessage = itemMeta.getDisplayName();
                 String message = originalMessage;
-                Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message);
+                Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message, MessagePlace.INVENTORY_ITEM_NAME);
                 MessageEdit messageEdit = null;
                 Matcher messageEditMatcher = null;
                 if (cachedMessage == null) {
@@ -83,7 +83,7 @@ public class InventoryItemsPacketListener extends PacketAdapter {
                         if (this.getPlugin().isPlaceholderApiPresent()) {
                             newMessage = PlaceholderAPI.setPlaceholders(player, newMessage);
                         }
-                        this.getPlugin().cacheMessage(message, messageEdit, newMessage);
+                        this.getPlugin().cacheMessage(message, MessagePlace.INVENTORY_ITEM_NAME, messageEdit, newMessage);
                         message = newMessage;
                     }
                 }
@@ -106,7 +106,7 @@ public class InventoryItemsPacketListener extends PacketAdapter {
             if (itemMeta.hasLore()) {
                 String originalMessage = String.join("\\n", itemMeta.getLore());
                 String message = originalMessage;
-                Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message);
+                Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message, MessagePlace.INVENTORY_ITEM_LORE);
                 MessageEdit messageEdit = null;
                 Matcher messageEditMatcher = null;
                 if (cachedMessage == null) {
@@ -133,7 +133,7 @@ public class InventoryItemsPacketListener extends PacketAdapter {
                         if (this.getPlugin().isPlaceholderApiPresent()) {
                             newMessage = PlaceholderAPI.setPlaceholders(player, newMessage);
                         }
-                        this.getPlugin().cacheMessage(message, messageEdit, newMessage);
+                        this.getPlugin().cacheMessage(message, MessagePlace.INVENTORY_ITEM_LORE, messageEdit, newMessage);
                         message = newMessage;
                     }
                 }

@@ -50,7 +50,7 @@ public class ChatPacketListener extends PacketAdapter {
         if (message == null) {
             return;
         }
-        Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message);
+        Map.Entry<MessageEdit, String> cachedMessage = this.getPlugin().getCachedMessage(message, originalPlace);
         MessageEdit messageEdit = null;
         Matcher messageEditMatcher = null;
         if (cachedMessage == null) {
@@ -92,7 +92,7 @@ public class ChatPacketListener extends PacketAdapter {
                 if (this.getPlugin().isPlaceholderApiPresent()) {
                     newMessage = PlaceholderAPI.setPlaceholders(player, newMessage);
                 }
-                this.getPlugin().cacheMessage(message, messageEdit, newMessage);
+                this.getPlugin().cacheMessage(message, originalPlace, messageEdit, newMessage);
                 if (newMessage.isEmpty()) {
                     event.setCancelled(true);
                     return;

@@ -1,7 +1,7 @@
 plugins {
     java
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.4"
 }
 
 group = "dev.jaqobb"
@@ -9,8 +9,8 @@ version = "2.5.5-SNAPSHOT"
 description = "Edit in-game messages that were previously unmodifiable"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 bukkit {
@@ -48,6 +48,10 @@ tasks {
         exclude("com/cryptomorin/xseries/XItemStack*")
         exclude("com/cryptomorin/xseries/XPotion*")
         exclude("com/cryptomorin/xseries/XTag*")
+        exclude("com/cryptomorin/xseries/XWorldBorder*")
+        exclude("com/cryptomorin/xseries/abstractions/*")
+        exclude("com/cryptomorin/xseries/profiles/**")
+        exclude("com/cryptomorin/xseries/reflection/**")
         relocate("com.cryptomorin.xseries", "dev.jaqobb.message_editor.library.xseries")
     }
 }

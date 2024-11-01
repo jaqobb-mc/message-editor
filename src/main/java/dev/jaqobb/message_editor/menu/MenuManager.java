@@ -1,10 +1,6 @@
 package dev.jaqobb.message_editor.menu;
 
-import com.comphenix.protocol.reflect.accessors.Accessors;
-import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftVersion;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 import com.cryptomorin.xseries.XMaterial;
 import dev.jaqobb.message_editor.MessageEditorPlugin;
 import dev.jaqobb.message_editor.message.MessageData;
@@ -18,16 +14,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MenuManager {
-    
-    private static final WrappedGameProfile ARROW_PROFILE;
     
     private static final int[] BORDER_ITEM_1_SLOTS = {0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 37, 38, 40, 42, 43, 44, 45, 46, 47, 49, 51, 52, 53};
     private static final ItemStack BORDER_ITEM_1 = constructItem(XMaterial.BLACK_STAINED_GLASS_PANE, " ");
@@ -35,19 +27,11 @@ public class MenuManager {
     private static final int[] BORDER_ITEM_2_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 21, 23, 25, 28, 29, 30, 31, 32, 34, 37, 38, 39, 40, 41, 42, 43};
     private static final ItemStack BORDER_ITEM_2 = constructItem(XMaterial.GRAY_STAINED_GLASS_PANE, " ");
     
-    private static final ItemStack MESSAGE_ARROW_ITEM;
-    private static final ItemStack MESSAGE_PLACE_ARROW_ITEM;
+    private static final ItemStack MESSAGE_INFO_ITEM = constructItem(XMaterial.OAK_SIGN, "&e< &7Old message", "&e> &7New message");
+    private static final ItemStack MESSAGE_PLACE_INFO_ITEM = constructItem(XMaterial.OAK_SIGN, "&e< &7Old message place", "&e> &7New message place");
     
     private static final ItemStack DONE_ITEM = constructItem(XMaterial.GREEN_TERRACOTTA, "&aDone", "", "&7Click to save message edit", "&7and apply it to your server.");
     private static final ItemStack CANCEL_ITEM = constructItem(XMaterial.RED_TERRACOTTA, "&cCancel", "", "&7Click to cancel message edit.");
-    
-    static {
-        String textures = "ewogICJ0aW1lc3RhbXAiIDogMTYwNzM2ODc1MzI0NCwKICAicHJvZmlsZUlkIiA6ICI1MGM4NTEwYjVlYTA0ZDYwYmU5YTdkNTQyZDZjZDE1NiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNSEZfQXJyb3dSaWdodCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMzRlZjA2Mzg1MzcyMjJiMjBmNDgwNjk0ZGFkYzBmODVmYmUwNzU5ZDU4MWFhN2ZjZGYyZTQzMTM5Mzc3MTU4IgogICAgfQogIH0KfQ==";
-        ARROW_PROFILE = new WrappedGameProfile(UUID.nameUUIDFromBytes(textures.getBytes(StandardCharsets.UTF_8)), "MHF_ArrowRight");
-        ARROW_PROFILE.getProperties().put("textures", new WrappedSignedProperty("textures", textures, null));
-        MESSAGE_ARROW_ITEM = constructArrowItem("&e< &7Old message", "&e> &7New message");
-        MESSAGE_PLACE_ARROW_ITEM = constructArrowItem("&e< &7Old message place", "&e> &7New message place");
-    }
     
     private final MessageEditorPlugin plugin;
     
@@ -152,23 +136,14 @@ public class MenuManager {
         newMessagePlaceItemMeta.setLore(newMessagePlaceItemMetaLore);
         newMessagePlaceItem.setItemMeta(newMessagePlaceItemMeta);
         inventory.setItem(33, newMessagePlaceItem);
-        inventory.setItem(22, MESSAGE_ARROW_ITEM);
-        inventory.setItem(31, MESSAGE_PLACE_ARROW_ITEM);
+        inventory.setItem(22, MESSAGE_INFO_ITEM);
+        inventory.setItem(31, MESSAGE_PLACE_INFO_ITEM);
         inventory.setItem(50, DONE_ITEM);
         inventory.setItem(48, CANCEL_ITEM);
         player.openInventory(inventory);
         if (playSound) {
             MessageUtils.sendSuccessSound(player);
         }
-    }
-    
-    private static ItemStack constructArrowItem(String name, String... lore) {
-        ItemStack item = constructItem(XMaterial.PLAYER_HEAD, name, lore);
-        ItemMeta itemMeta = item.getItemMeta();
-        FieldAccessor fieldAccessor = Accessors.getFieldAccessorOrNull(itemMeta.getClass(), "profile", ARROW_PROFILE.getHandle().getClass());
-        fieldAccessor.set(itemMeta, ARROW_PROFILE.getHandle());
-        item.setItemMeta(itemMeta);
-        return item;
     }
     
     private static ItemStack constructItem(XMaterial material, String name, String... lore) {

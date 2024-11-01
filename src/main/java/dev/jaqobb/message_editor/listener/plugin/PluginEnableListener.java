@@ -19,7 +19,7 @@ public class PluginEnableListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPluginEnable(PluginEnableEvent event) {
         Plugin plugin = event.getPlugin();
-        if (plugin.getName().equals("PlaceholderAPI")) {
+        if (!plugin.getName().equals("PlaceholderAPI")) {
             return;
         }
         this.plugin.setPlaceholderApiPresent(true);
