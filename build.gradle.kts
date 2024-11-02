@@ -33,9 +33,9 @@ bukkit {
 
 tasks {
     shadowJar {
-        exclude("com/cryptomorin/xseries/messages/*")
-        exclude("com/cryptomorin/xseries/particles/*")
-        exclude("com/cryptomorin/xseries/unused/*")
+        exclude("com/cryptomorin/xseries/messages/**")
+        exclude("com/cryptomorin/xseries/particles/**")
+        exclude("com/cryptomorin/xseries/unused/**")
         exclude("com/cryptomorin/xseries/NMSExtras*")
         exclude("com/cryptomorin/xseries/NoteBlockMusic*")
         exclude("com/cryptomorin/xseries/ReflectionUtils*")
@@ -49,7 +49,7 @@ tasks {
         exclude("com/cryptomorin/xseries/XPotion*")
         exclude("com/cryptomorin/xseries/XTag*")
         exclude("com/cryptomorin/xseries/XWorldBorder*")
-        exclude("com/cryptomorin/xseries/abstractions/*")
+        exclude("com/cryptomorin/xseries/abstractions/**")
         exclude("com/cryptomorin/xseries/profiles/**")
         exclude("com/cryptomorin/xseries/reflection/**")
         relocate("com.cryptomorin.xseries", "dev.jaqobb.message_editor.library.xseries")
