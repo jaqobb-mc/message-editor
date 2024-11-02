@@ -66,21 +66,23 @@ public class Updater implements Runnable {
                 this.latestVersion = reader.readLine();
                 String[] currentVersionData = this.currentVersion.split("\\.");
                 String[] latestVersionData = this.latestVersion.split("\\.");
-                if (currentVersionData.length == 3 && latestVersionData.length == 3) {
-                    int majorDifference = Integer.compare(Integer.parseInt(currentVersionData[0]), Integer.parseInt(latestVersionData[0]));
-                    if (majorDifference != 0) {
-                        this.versionDifference = majorDifference;
-                    } else {
-                        int minorDifference = Integer.compare(Integer.parseInt(currentVersionData[1]), Integer.parseInt(latestVersionData[1]));
-                        if (minorDifference != 0) {
-                            this.versionDifference = minorDifference;
-                        } else {
-                            this.versionDifference = Integer.compare(Integer.parseInt(currentVersionData[2]), Integer.parseInt(latestVersionData[2]));
-                        }
-                    }
+                if (currentVersionData.length != 3 || latestVersionData.length != 3) {
+                    return;
                 }
+                int majorDifference = Integer.compare(Integer.parseInt(currentVersionData[0]), Integer.parseInt(latestVersionData[0]));
+                if (majorDifference != 0) {
+                    this.versionDifference = majorDifference;
+                    return;
+                }
+                int minorDifference = Integer.compare(Integer.parseInt(currentVersionData[1]), Integer.parseInt(latestVersionData[1]));
+                if (minorDifference != 0) {
+                    this.versionDifference = minorDifference;
+                    return;
+                }
+                this.versionDifference = Integer.compare(Integer.parseInt(currentVersionData[2]), Integer.parseInt(latestVersionData[2]));
+            } finally {
+                connection.disconnect();
             }
-            connection.disconnect();
         } catch (Exception exception) {
             this.plugin.getLogger().log(Level.WARNING, "Could not retrieve the latest version data.", exception);
         }
