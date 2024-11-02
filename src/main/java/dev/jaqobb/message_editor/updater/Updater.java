@@ -46,7 +46,7 @@ public class Updater implements Runnable {
             return "&cCould not retrieve the latest version of &7Message Editor&c.";
         }
         if (this.versionDifference < 0) {
-            return "&7You are running an outdated version of &eMessage Editor &7(&e" + this.currentVersion + " &7< &e" + this.latestVersion + "&7). Consider updating to receive new features, bug fixes and more.";
+            return "&7You are running an outdated version of &eMessage Editor &7(&e" + this.currentVersion + " &7< &e" + this.latestVersion + "&7). Consider updating to receive new features, bug fixes, and more.";
         }
         if (this.versionDifference > 0) {
             return "&7You are running a future version of &eMessage Editor &7(&e" + this.currentVersion + " &7> &e" + this.latestVersion + "&7). I suppose you are a time traveler.";
