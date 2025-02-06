@@ -40,7 +40,8 @@ public class PlayerInventoryClickListener implements Listener {
     public void onPlayerInventoryClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getInventory();
-        if (!getTitle(event).equals(MessageUtils.translate("&8Message Editor"))) {
+        Object view = event.getView();
+        if (!getTitle(view).equals(MessageUtils.translate("&8Message Editor"))) {
             return;
         }
         event.setCancelled(true);
@@ -161,9 +162,8 @@ public class PlayerInventoryClickListener implements Listener {
             player.closeInventory();
         }
     }
-    public String getTitle(InventoryClickEvent event){
+    public static String getTitle(Object view){
         try {
-            Object view = event.getView();
             Method getTitle = view.getClass().getMethod("getTitle");
             getTitle.setAccessible(true);
             return (String) getTitle.invoke(view);
