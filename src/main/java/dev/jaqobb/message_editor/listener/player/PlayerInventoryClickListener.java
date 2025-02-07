@@ -16,9 +16,10 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -39,8 +40,8 @@ public class PlayerInventoryClickListener implements Listener {
     public void onPlayerInventoryClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getInventory();
-        InventoryView view = event.getView();
-        if (!view.getTitle().equals(MessageUtils.translate("&8Message Editor"))) {
+        Object view = event.getView();
+        if (!getTitle(view).equals(MessageUtils.translate("&8Message Editor"))) {
             return;
         }
         event.setCancelled(true);
@@ -159,6 +160,15 @@ public class PlayerInventoryClickListener implements Listener {
                 MessageUtils.sendPrefixedMessage(player, "&cCould not save message edit, check console for more information.");
             }
             player.closeInventory();
+        }
+    }
+    public static String getTitle(Object view){
+        try {
+            Method getTitle = view.getClass().getMethod("getTitle");
+            getTitle.setAccessible(true);
+            return (String) getTitle.invoke(view);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
